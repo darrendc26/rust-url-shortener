@@ -7,6 +7,8 @@ pub struct ShortenRequest {
 }
 
 pub async fn short_url(Json(payload): Json<ShortenRequest>) -> impl IntoResponse {
+    let url = payload.url;
+
     let mut rng = rand::rng();
     let mut short_url = "".to_string();
     for _ in 0..7 {
