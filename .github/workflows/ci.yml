@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: url_shortener
+          POSTGRES_PASSWORD: url_shortener
+          POSTGRES_DB: url_shortener
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready -U url_shortener
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+env:
+  DATABASE_URL: postgres://url_shortener:url_shortener@localhost:5432/url_shortener
+
+steps:
+  -name : Checkout repo
+  uses: actions/checkout@v4
+
+  -name: Install Rust
+  uses:  dtolnay/rust-toolchain@stable
+
+  -name: Cache cargo
+  uses: actions/cache@v4
+    with:
+    path: |
+    ~/.cargo/registry
+    ~/.cargo/git
+    target
+    key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+  -name: Run migrations (if any)
+    run: |
+      sudo apt-get install -y postgresql-client
+      psql $DATABASE_URL -f init.sql
+
+  -name: Run tests
+    run: cargo test --locked
+
