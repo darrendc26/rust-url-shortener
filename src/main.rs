@@ -22,7 +22,7 @@ async fn main() {
         .route("/shorten", post(short_url))
         .with_state(pool);
 
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let addr = SocketAddr::from(([0, 0, 0, 0], 3000));
     println!("Server running at http://{}", addr);
 
     axum::serve(tokio::net::TcpListener::bind(addr).await.unwrap(), app)

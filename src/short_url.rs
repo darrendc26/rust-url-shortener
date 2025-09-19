@@ -1,7 +1,7 @@
 use axum::{Json, extract::State, http::StatusCode};
 use nanoid::nanoid;
 use serde::{Deserialize, Serialize};
-use sqlx::PgPool;
+use sqlx::{PgPool, Row};
 
 #[derive(Deserialize, Debug)]
 pub struct ShortenRequest {
@@ -24,20 +24,21 @@ pub async fn short_url(
 
     let shortened = nanoid!(7);
 
-    let result = sqlx::query!(
-        "INSERT INTO urls (url, short_url) VALUES ($1, $2) RETURNING id, short_url",
-        url,
-        shortened
-    )
-    .fetch_one(&pool)
-    .await
-    .unwrap();
+    let row =
+        sqlx::query("INSERT INTO urls (url, short_url) VALUES ($1, $2) RETURNING id, short_url")
+            .bind(url)
+            .bind(shortened)
+            .fetch_one(&pool)
+            .await
+            .unwrap();
 
+    let id: i32 = row.get("id");
+    let short_url: String = row.get("short_url");
     Ok((
         StatusCode::CREATED,
         Json(ShortenResponse {
-            id: result.id,
-            short_url: result.short_url,
+            id: id,
+            short_url: short_url,
         }),
     ))
 }

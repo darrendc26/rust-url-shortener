@@ -14,5 +14,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql:ro
 
+  url_shortener:
+    build: .
+    depends_on:
+      - db
+    environment:
+      DATABASE_URL: postgres://url_shortener:url_shortener@db:5432/url_shortener
+    ports:
+      - "3000:3000"
+
 volumes:
   postgres_data:
