@@ -1,9 +1,9 @@
+mod get_website;
 mod short_url;
+use crate::get_website::get_website;
 use crate::short_url::short_url;
 use axum::{
     Router,
-    // extract::Path,
-    // http::StatusCode,
     response::IntoResponse,
     routing::{get, post},
 };
@@ -18,7 +18,7 @@ async fn main() {
         .await
         .unwrap();
     let app = Router::new()
-        .route("/", get(index))
+        .route("/{short_url}", get(get_website))
         .route("/shorten", post(short_url))
         .with_state(pool);
 
@@ -28,8 +28,4 @@ async fn main() {
     axum::serve(tokio::net::TcpListener::bind(addr).await.unwrap(), app)
         .await
         .unwrap();
-}
-
-async fn index() -> impl IntoResponse {
-    "Hello, world!"
 }
