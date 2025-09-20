@@ -52,6 +52,18 @@ The init.sql script is used to create the urls table.
 
 SQLx is used to query / mutate data.
 
+## Docker Image
+
+You can pull the latest image from Docker Hub:
+
+```bash
+docker pull darrendc26/url_shortener:latest
+```
+Then run 
+```bash
+docker run -p 8080:8080 darrendc26/url_shortener:latest
+```
+
 ## CI/CD
 
 CI pipeline (GitHub Actions) runs on push / pull requests to main branch:
